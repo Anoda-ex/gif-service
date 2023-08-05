@@ -21,12 +21,6 @@ const router = createRouter({
       props: true,
       component: () => import('../views/UserPage.vue')
     }
-    // {
-    //   path: '/author/:id',
-    //   name: 'authorPage',
-      
-    //   component: () => import('../views/GifPage.vue')
-    // }
   ]
 })
 

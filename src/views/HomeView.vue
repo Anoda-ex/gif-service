@@ -35,7 +35,6 @@
 				
 			</v-container>
 		</v-app-bar>
-
 		<v-main>
 			<v-container>
 				<NotFoundElement 
@@ -62,15 +61,10 @@
 
 				<div v-if="!isNotFound" ref="observeElement" class="observer "></div>
 			</v-container>
-			
-
 		</v-main>
 	</v-app>
 	
 </template>
-
-
-
 
 <script setup lang="ts">
 
