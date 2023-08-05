@@ -60,6 +60,7 @@
 							<GifSlider :gifs="sliderGifs"></GifSlider>
 						</v-col>
 					</v-row>
+					<Loading v-if="randomGifsLoading"></Loading>
 				</div>
 			</v-container>
 		</v-main>
@@ -69,11 +70,13 @@
 <script setup lang="ts">
 import type { IGifData, IGifDataResponse, IResponse } from '@/types';
 import { ref, onMounted, computed } from 'vue';
-import { getGifById, getTrendGifs } from "../api/index"
+import { getGifById, getRandomGifs } from "../api/index"
 import NotFoundElement from "@/components/NotFoundElement.vue";
 import GifWrapper from "@/components/GifWrapper.vue";
 import GifSlider from '@/components/GifSlider.vue';
 import { watch } from 'vue';
+import Loading from "@/components/Loading.vue";
+
 
 const props = defineProps<{
     id:string
@@ -81,6 +84,8 @@ const props = defineProps<{
 
 const gif = ref<IGifData|null>(null);
 let gifLoading = ref<boolean>(false);
+let randomGifsLoading = ref<boolean>(false)
+
 let isInited = ref(false);
 let sliderGifs = ref<IGifData[]>([])
 
@@ -98,7 +103,7 @@ let loadPageData = async() =>{
 		
 	}
 	gifLoading.value = false;
-	getRandomGifs()
+	getRandomGifsMethod()
 	if(!isInited.value){
 		isInited.value=true
 	}
@@ -119,11 +124,21 @@ let isNotFound = computed(()=>{
 	return !gif.value && !gifLoading.value && isInited.value
 })
 
-let getRandomGifs = async () => {
-	let res:IResponse|null = await getTrendGifs(0) as IResponse;
-	if(res){
-		sliderGifs.value = res.data;
+let getRandomGifsMethod = async () => {
+	if(randomGifsLoading.value) return;
+
+	randomGifsLoading.value=true
+	let res:IGifData[]|null = null;
+	try {
+		res = await getRandomGifs() as IGifData[];
+		if(res){
+			sliderGifs.value = res;
+		}
+	} catch (error) {
+		
 	}
+	randomGifsLoading.value=false
+	
 }
 </script>
 

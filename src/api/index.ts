@@ -1,20 +1,34 @@
 import { baseUrl, limitForLoading, apiKey } from "../config/apiConfig" 
-import { type IUser } from '../types';
+import { type IGifData, type IGifDataResponse, type IUser } from '../types';
 
-export const getTrendGifs = (offset:number = 0) => {
+export const getRandomGifs = () => {
     return new Promise((resolve, reject) => {
-        fetch(`https://api.giphy.com/v1/gifs/trending?api_key=${apiKey}&limit=${limitForLoading}&offset=${offset}&rating=g&bundle=messaging_non_clips`)
-        .then(res=>{
-            return res.json()
-        }).then(res=>{
-            console.log('getTrendGifs 2', res);
-            if(res.meta.status===200){
-                resolve(res)
-            }else{
-                reject(null)
+        let fetches = []
+        for(let i = 0; i<25; i++){
+            let localFetch = fetch(`https://api.giphy.com/v1/gifs/random?api_key=${apiKey}&rating=g`)
+            .then(res=>{
+                return res.json()
+            })
+        
+            fetches.push(localFetch)
         }
+        Promise.all(fetches)
+            .then(results => {
+                let res:IGifData[]= results.map(item=>{
+                    if(item.meta.status===200){
+                        return item.data
+                    }else{
+                        return null
+                    }
+                }).filter(item=>item)
+                if(res.length===0){
+                    reject(null)
+                }else{
+                    resolve(res)                   
+                }
+            })
 
-        })
+
     })
 }
 export const getSearchGifs = (offset:number = 0, search:string) => {

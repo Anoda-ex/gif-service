@@ -69,7 +69,7 @@
 <script setup lang="ts">
 
 import { type IGifData, type IResponse } from "../types"
-import { getTrendGifs, getSearchGifs } from '../api/index';
+import { getRandomGifs, getSearchGifs } from '../api/index';
 import { onMounted, ref, watch } from "vue";
 import NotFoundElement from "@/components/NotFoundElement.vue";
 import { computed } from "vue";
@@ -96,17 +96,24 @@ let nextPage = async () => {
 	if(gifsLoading.value) return;
 
 	gifsLoading.value = true
-	let res:IResponse|null = null
-	if(searchValue.value){
-		// console.log('getSearchGifs');
-		res = await getSearchGifs(pagination.value, searchValue.value) as IResponse;
-	}else{
-		res = await getTrendGifs(pagination.value) as IResponse;
+	let res:IResponse|null|IGifData[] = null
+	try {
+		if(searchValue.value){
+			res = await getSearchGifs(pagination.value, searchValue.value) as IResponse;
+			pagination.value = pagination.value + res.pagination.count;
+			if(res){
+				gifs.value = [...gifs.value, ...res.data];
+			}
+		}else{
+			res = await getRandomGifs() as IGifData[];
+			if(res && res.length){
+				gifs.value = [...gifs.value, ...res];
+			}
+		}
+	} catch (error) {
+		
 	}
-	if(res){
-		pagination.value = pagination.value + res.pagination.count;
-		gifs.value = [...gifs.value, ...res.data];
-	}
+
 	gifsLoading.value=false
 	if(!isInited.value){
 		return isInited.value=true
